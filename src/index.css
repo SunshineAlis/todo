@@ -62,7 +62,6 @@ button:hover {
   border-color: #f9f9f9;
 }
 
-
 .buttons {
   display: flex;
   gap: 10px;
@@ -139,7 +138,7 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: start;
-  position:relative;
+  position: relative;
 }
 
 .taskList li {
@@ -151,16 +150,15 @@ button:hover {
   border: 1px solid #eee;
   border-radius: 5px;
   background-color: #f9f9f9;
-  padding:10px;
-  margin-top:10px;
-  width:100%;
-  gap:5px;
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  gap: 5px;
 }
 
 .taskList li.completed span {
   text-decoration: line-through;
   color: #999;
-
 }
 
 .taskList button {
@@ -169,7 +167,7 @@ button:hover {
   border: none;
   cursor: pointer;
   position: absolute;
-  right:15px;
+  right: 15px;
 }
 
 .clearButton {
@@ -184,4 +182,3 @@ button:hover {
 .clearButton:hover {
   background-color: #d9534f;
 }
-
