@@ -54,12 +54,14 @@ h1 {
   background-color: #3c82f6;
   height: 58px;
   padding: 8px 16px;
-  border-radius: 10px;
   color: white;
+  border-color: #eee;
+  transition: background-color 0.3s ease;
 }
-button:hover {
-  border-color: #646cff;
-  border-color: #f9f9f9;
+.button:hover{
+   background-color: #1878df;
+    color: #3c82f6;
+    color: white;
 }
 
 .buttons {
@@ -81,10 +83,9 @@ button:hover {
   color: #363636;
   transition: background-color 0.3s ease; /* Hover эффектийн аажим шилжих хөдөлгөөн */
 }
-.secondButton:hover {
-  background-color: #3c82f6; /* Hover үед тэнгэрийн цэнхэр өнгө */
-  color: white; /* Text color-г цагаан болгоно */
-  border-color: #3577d9; /* Border өнгө өөрчлөгдөнө */
+.secontButton .active{ background-color: #007BFF;
+  color: white;
+  border: none;
 }
 .div3 {
   display: flex;
@@ -122,15 +123,12 @@ button:hover {
   font-weight: 400;
   line-height: normal;
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #1e80d7;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
+.buttons .active {
+  background-color: #007BFF;
+  color: white;
+  border: none;
 }
+
 .taskList ul {
   list-style: none;
   padding: 0;
@@ -139,6 +137,7 @@ button:hover {
   flex-direction: column;
   align-items: start;
   position: relative;
+  width:330px;
 }
 
 .taskList li {
@@ -155,6 +154,14 @@ button:hover {
   width: 100%;
   gap: 5px;
 }
+.taskList li:hover button {
+  color: red; 
+}
+
+.taskList li button {
+  transition: color 0.3s ease; 
+}
+
 
 .taskList li.completed span {
   text-decoration: line-through;
@@ -163,22 +170,32 @@ button:hover {
 
 .taskList button {
   background-color: transparent;
-  color: red;
+  color: white;
   border: none;
   cursor: pointer;
   position: absolute;
   right: 15px;
+  transition: color 0.3s ease;
+}
+
+
+.countTask {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  color:#4e4d4d;
+}
+.countSpan{
+  font-size:18px;
 }
 
 .clearButton {
-  background-color: #ff6b6b;
-  color: white;
-  padding: 10px 20px;
+  color: red;
+  background: none;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-}
-
-.clearButton:hover {
-  background-color: #d9534f;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
 }

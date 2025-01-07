@@ -5,7 +5,8 @@ function App() {
   const [tasks, setTasks] = useState([]); // all plan
   const [newTask, setNewTask] = useState(""); // new plan
   const [filter, setFilter] = useState("all"); // filter (all, active, completed)
-
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const totalCount = tasks.length;
   // 1.add task
   const addTask = () => {
     if (newTask.trim() === "") return; // Хоосон текст шалгах
@@ -25,9 +26,16 @@ function App() {
     );
   };
 
-  // 3.delete устгах
+  // 3.delete 
   const deleteTask = (id) => {
     setTasks(tasks.filter((task) => task.id !== id));
+  };
+  
+  const isConfirmed = (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this task?");
+    if (confirmed) {
+      deleteTask(id); // confirm hiiged utgana
+    }
   };
 
   // 4.clearcomplete
@@ -43,7 +51,7 @@ function App() {
   });
 
   return (
-    <div className="app">
+    <><div className="app">
       <h1>To-Do List</h1>
       <div className="addTask">
         <input
@@ -80,36 +88,37 @@ function App() {
       </div>
 
       <div className="taskList">
-        {filteredTasks.length === 0 ? (
-          <p className="p2">No tasks yet. Add one above!</p>
-        ) : (
-          <ul>
-            {filteredTasks.map((task) => (
-              <li key={task.id} className={task.completed ? "completed" : ""}>
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => toggleTask(task.id)}
-                />
-                <span>{task.text}</span>
-                <button onClick={() => deleteTask(task.id)}>Delete</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {tasks.some((task) => task.completed) && (
-        <button className="clearButton" onClick={clearCompleted}>
-          Clear Completed
-        </button>
-      )}
-
+     {filteredTasks.length === 0 ? (
+    <p className="p2">No tasks yet. Add one above!</p>
+  ) : (
+    <ul>
+      {filteredTasks.map((task) => (
+        <li key={task.id} className={task.completed ? "completed" : ""}>
+          <input
+            type="checkbox"
+            checked={task.completed}
+            onChange={() => toggleTask(task.id)}
+          />
+          <span>{task.text}</span>
+          <button onClick={() => isConfirmed(task.id)}>Delete</button>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
       <p className="p3">
         Powered by <span className="span">Pinecone academy</span>
       </p>
     </div>
+    <div className="countTask">
+  <span className="countSpan">{completedCount} of {totalCount} tasks completed</span>
+  <button className="clearButton" onClick={clearCompleted}>
+    Clear completed
+  </button>
+</div>
+</>
   );
+
 }
 
 export default App;
