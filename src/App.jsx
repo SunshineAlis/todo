@@ -3,102 +3,105 @@ import "./App.css";
 
 function App() {
   const [logs, setLogs] = useState([]); // all logs
-  const [tasks, setTasks] = useState([]); // all plan
-  const [newTask, setNewTask] = useState(""); // new plan
+  const [tasks, setTasks] = useState([]); // all tasks
+  const [newTask, setNewTask] = useState(""); // new task input
   const [filter, setFilter] = useState("all"); // filter (all, active, completed)
   const completedCount = tasks.filter((task) => task.completed).length;
   const totalCount = tasks.length;
 
-  console.log(logs);
-
-  // 1.add task
+  // 1. Add Task
   const addTask = () => {
-    if (newTask.trim() === "") return; //
-    // const newDate = Date.now();
-    // newDate;
-    const newTaskId = Date.now();
-    setTasks([...tasks, { id: newTaskId, text: newTask, completed: false }]);
-    setLogs([
-      ...logs,
+    if (!newTask.trim()) {
+      alert("Please write task!");
+      return;
+    }
+    const newTaskId = Date.now(); //  unique ID
+    const newTaskObj = { id: newTaskId, text: newTask, completed: false };
+
+    setLogs((prevLogs) => [
+      ...prevLogs,
       {
         id: newTaskId,
         text: newTask,
-        completed: false,
-        createdAt: new Date().toISOString(),
+        action: "created",
+        createdAt: new Date().toISOString().split("T")[0],
       },
     ]);
-    setNewTask(""); // clear value
+    setTasks((prevTasks) => [...prevTasks, newTaskObj]);
+    setNewTask(""); // Clear input after adding task
   };
 
-  // 2.change task status
-  const toggleTask = (id) => {
-    setLogs(
-      logs.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              completed: !task.completed,
-              updatedAt: new Date().toISOString(),
-            }
-          : task
-      )
-    );
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  // 3.delete
-  // const deleteTask = (id) => {
-  //   setLogs(
-  //     logs.filter((task) => task.id !== id, { ...tasks, updatedAt: Date.now() })
-  //   );
-  //   setTasks(tasks.filter((task) => task.id !== id));
-  // };
+  // 2. Delete Task
   const deleteTask = (id) => {
-    setLogs(
-      logs.map((task) =>
-        task.id === id ? { ...task, deleteAt: new Date().toISOString() } : task
-      )
-    );
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
-
-  const isConfirmed = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this task?"
-    );
-    if (confirmed) {
-      deleteTask(id); // first confirm then delete
+    const deletedTask = tasks.find((task) => task.id === id);
+    if (deletedTask) {
+      setLogs((prevLogs) => [
+        ...prevLogs,
+        {
+          id:Date.now(),
+          text: deletedTask.text,
+          action: "deleted",
+          deleteAt: `Deleted At: ${new Date().toISOString().split("T")[0]}`,
+        },
+      ]);
+      setTasks(tasks.filter((task) => task.id !== id));
     }
   };
 
-  // 4.clear complete
+  const isConfirmed = (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this task?");
+    if (confirmed) {
+      deleteTask(id);
+    }
+  };
+
+  // 3.Clear Completed Tasks
   const clearCompleted = () => {
-    setLogs(
-      logs.map((log) => {
-        if (log.completed) return log;
-        if (!log.completed) {
-          return {
-            ...log,
-            completed: true,
-            clearAt: new Date().toISOString(),
-          };
-        }
-      })
-    );
+    const clearedLogs = tasks
+      .filter((task) => task.completed)
+      .map((task) => ({
+        id:Date.now(),
+        text: task.text,
+        action: "cleared",
+        clearAt: `Cleared at: ${new Date().toISOString().split("T")[0]}`,
+      }));
+
+    setLogs((prevLogs) => [...prevLogs, ...clearedLogs]);
     setTasks(tasks.filter((task) => !task.completed));
   };
 
-  // 5.task filter
+  // 4.Task Filter Logic
   const filteredTasks = tasks.filter((task) => {
     if (filter === "active") return !task.completed;
     if (filter === "completed") return task.completed;
     return true;
   });
-  //log
+
+  // 5.Toggle Task (Complete/Active)
+  const toggleTask = (id) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    );
+
+    // log toggle task
+    const toggledTask = tasks.find((task) => task.id === id);
+
+    if (toggledTask) {
+      setLogs((prevLogs) => [
+        ...prevLogs,
+        {
+          id:Date.now(),
+          text: toggledTask.text,
+          action: toggledTask.completed
+            ? "marked active"
+            : "marked completed",
+          timestamp: `Completed at: ${new Date().toISOString().split("T")[0]}`,
+        },
+      ]);
+    }
+
+    setTasks(updatedTasks);
+  };
 
   return (
     <>
@@ -109,8 +112,8 @@ function App() {
             placeholder="Add new task"
             type="text"
             className="container"
-            value={newTask} // Input value
-            onChange={(e) => setNewTask(e.target.value)} // Input value changes
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
           />
           <button className="button" onClick={addTask}>
             Add
@@ -143,17 +146,44 @@ function App() {
             Logs
           </button>
         </div>
-
         {filter === "logs" ? (
           <div className="taskList">
             {logs.length === 0 ? (
-              <p className="p2">No logs yet. </p>
+              <p className="p2">No logs yet.</p>
             ) : (
               <ul>
                 {logs.map((log) => (
                   <li key={log.id}>
-                    <span>{log.text}</span>
-                    <span>{log.createdAt}</span>
+                    {log.action === "created" && (
+                      <>
+                        <span>{log.text}</span> -{" "}
+                        <span>Created At: {log.createdAt}</span>
+                      </>
+                    )}
+                    {log.action === "deleted" && (
+                      <>
+                        <span>{log.text}</span> -{" "}
+                        <span>{log.deleteAt}</span>
+                      </>
+                    )}
+                    {log.action === "marked completed" && (
+                      <>
+                        <span>{log.text}</span> -{" "}
+                        <span>{log.timestamp}</span>
+                      </>
+                    )}
+                    {log.action === "marked active" && (
+                      <>
+                        <span>{log.text}</span> -{" "}
+                        <span>{log.timestamp}</span>
+                      </>
+                    )}
+                    {log.action === "cleared" && (
+                      <>
+                        <span>{log.text}</span> -{" "}
+                        <span>{log.clearAt}</span>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -166,10 +196,7 @@ function App() {
             ) : (
               <ul>
                 {filteredTasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className={task.completed ? "completed" : ""}
-                  >
+                  <li key={task.id} className={task.completed ? "completed" : ""}>
                     <input
                       type="checkbox"
                       checked={task.completed}
@@ -185,7 +212,7 @@ function App() {
         )}
 
         <p className="p3">
-          Powered by <span className="span">Pinecone academy</span>
+          Powered by <span className="span">Pinecone Academy</span>
         </p>
       </div>
       <div className="countTask">
@@ -199,5 +226,4 @@ function App() {
     </>
   );
 }
-
 export default App;

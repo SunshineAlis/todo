@@ -4,26 +4,3 @@
   padding: 2rem;
   text-align: center;
 }
-.read-the-docs {
-  color: #888;
-}
-.countTask {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.clearButton {
-  color: red;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.completed {
-  text-decoration: line-through;
-  color: gray;
-}
-
-
