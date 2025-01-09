@@ -23,8 +23,13 @@ function App() {
       {
         id: newTaskId,
         text: newTask,
-        action: "created",
-        createdAt: new Date().toISOString().split("T")[0],
+        action: "active",
+        logs: [
+          {
+            createdAt: new Date().toISOString().split("T")[0],
+            status: "ACTIVE",
+          },
+        ],
       },
     ]);
     setTasks((prevTasks) => [...prevTasks, newTaskObj]);
@@ -38,7 +43,7 @@ function App() {
       setLogs((prevLogs) => [
         ...prevLogs,
         {
-          id:Date.now(),
+          id: Date.now(),
           text: deletedTask.text,
           action: "deleted",
           deleteAt: `Deleted At: ${new Date().toISOString().split("T")[0]}`,
@@ -49,7 +54,9 @@ function App() {
   };
 
   const isConfirmed = (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this task?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
     if (confirmed) {
       deleteTask(id);
     }
@@ -60,7 +67,7 @@ function App() {
     const clearedLogs = tasks
       .filter((task) => task.completed)
       .map((task) => ({
-        id:Date.now(),
+        id: Date.now(),
         text: task.text,
         action: "cleared",
         clearAt: `Cleared at: ${new Date().toISOString().split("T")[0]}`,
@@ -78,30 +85,24 @@ function App() {
   });
 
   // 5.Toggle Task (Complete/Active)
-  const toggleTask = (id) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    );
-
-    // log toggle task
-    const toggledTask = tasks.find((task) => task.id === id);
-
-    if (toggledTask) {
-      setLogs((prevLogs) => [
-        ...prevLogs,
-        {
-          id:Date.now(),
-          text: toggledTask.text,
-          action: toggledTask.completed
-            ? "marked active"
-            : "marked completed",
-          timestamp: `Completed at: ${new Date().toISOString().split("T")[0]}`,
-        },
-      ]);
-    }
-
-    setTasks(updatedTasks);
-  };
+  // const changeModeTask = (id) => {
+  //   const task = tasks.find((el) => el.id == id);
+  //   const newTaskStatus = task.status==="COMPLETED" ? "ACTIVE"? "COMPLETED"
+  //   const updatedTasks = tasks.map((task) => {
+  //    task.id === id ? { ...task, completed: !task.completed } : task;
+  //   });
+  //   const updatedLogs = logs.map((log) => {
+  //     if (log.id == task.id) {
+  //       return {
+  //         ...log,
+  //         logs: [ ...log,logs, {status:newTaskStatus, timestamp:new Date().toISOString().split("T")[0]}
+  //       ],
+  //       }
+  //     }
+  //   });
+  //   setLogs((prevLogs) => [...prevLogs, ...updatedLogs]);
+  //   setTasks(updatedTasks);
+  // };
 
   return (
     <>
@@ -154,34 +155,49 @@ function App() {
               <ul>
                 {logs.map((log) => (
                   <li key={log.id}>
-                    {log.action === "created" && (
-                      <>
-                        <span>{log.text}</span> -{" "}
-                        <span>Created At: {log.createdAt}</span>
-                      </>
+                    {log.action === "active" && (
+                      <div style={{ display: "flex" }}>
+                        <p>{log.text}</p>
+                        <div>
+                          {log.logs.map((el) => {
+                            console.log(el);
+
+                            return (
+                              <p style={{ color: "red" }}>
+                                {el.status} {el.createdAt}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
                     {log.action === "deleted" && (
                       <>
-                        <span>{log.text}</span> -{" "}
-                        <span>{log.deleteAt}</span>
+                        <span>{log.text}</span> - <span>{log.deleteAt}</span>
                       </>
                     )}
-                    {log.action === "marked completed" && (
+                    {log.action === "completed" && (
                       <>
-                        <span>{log.text}</span> -{" "}
-                        <span>{log.timestamp}</span>
+                        <span>{log.text}</span> - <span>{log.action}</span>
+                        {log.logs.map((el) => {
+                          console.log(el);
+
+                          return (
+                            <p style={{ color: "red" }}>
+                              {el.status} {el.createdAt}
+                            </p>
+                          );
+                        })}
                       </>
                     )}
-                    {log.action === "marked active" && (
+                    {log.action === "active" && (
                       <>
-                        <span>{log.text}</span> -{" "}
-                        <span>{log.timestamp}</span>
+                        <span>{log.text}</span> - <span>{log.timestamp}</span>
                       </>
                     )}
                     {log.action === "cleared" && (
                       <>
-                        <span>{log.text}</span> -{" "}
-                        <span>{log.clearAt}</span>
+                        <span>{log.text}</span> - <span>{log.clearAt}</span>
                       </>
                     )}
                   </li>
@@ -196,11 +212,14 @@ function App() {
             ) : (
               <ul>
                 {filteredTasks.map((task) => (
-                  <li key={task.id} className={task.completed ? "completed" : ""}>
+                  <li
+                    key={task.id}
+                    className={task.completed ? "completed" : ""}
+                  >
                     <input
                       type="checkbox"
                       checked={task.completed}
-                      onChange={() => toggleTask(task.id)}
+                      onChange={() => changeModeTask(task.id)}
                     />
                     <span>{task.text}</span>
                     <button onClick={() => isConfirmed(task.id)}>Delete</button>
