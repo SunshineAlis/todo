@@ -1,12 +1,16 @@
 import { useState } from "react";
 import "./App.css";
 
+const test = [{ id: "", text: "test", action: "action" }];
+
 function App() {
   const [logs, setLogs] = useState([]); // all logs
   const [tasks, setTasks] = useState([]); // all tasks
   const [newTask, setNewTask] = useState(""); // new task input
   const [filter, setFilter] = useState("all"); // filter (all, active, completed)
-  const completedCount = tasks.filter((task) => task.completed).length;
+  const completedCount = tasks.filter(
+    (task) => task.status === "completed"
+  ).length;
   const totalCount = tasks.length;
 
   // 1. Add Task
@@ -16,18 +20,17 @@ function App() {
       return;
     }
     const newTaskId = Date.now(); //  unique ID
-    const newTaskObj = { id: newTaskId, text: newTask, completed: false };
+    const newTaskObj = { id: newTaskId, text: newTask, status: "active" };
 
     setLogs((prevLogs) => [
       ...prevLogs,
       {
         id: newTaskId,
         text: newTask,
-        action: "active",
         logs: [
           {
-            createdAt: new Date().toISOString().split("T")[0],
-            status: "ACTIVE",
+            action: "created",
+            createdAt: `Created at: ${new Date().toISOString().split("T")[0]}`,
           },
         ],
       },
@@ -39,18 +42,23 @@ function App() {
   // 2. Delete Task
   const deleteTask = (id) => {
     const deletedTask = tasks.find((task) => task.id === id);
-    if (deletedTask) {
-      setLogs((prevLogs) => [
-        ...prevLogs,
-        {
-          id: Date.now(),
-          text: deletedTask.text,
-          action: "deleted",
-          deleteAt: `Deleted At: ${new Date().toISOString().split("T")[0]}`,
-        },
-      ]);
-      setTasks(tasks.filter((task) => task.id !== id));
-    }
+    const taskStatus = deletedTask.status === "deleted";
+    const deletedLogs = logs.map((log) => {
+      if (log.id === id) {
+        return {
+          ...log,
+          logs: [
+            ...log.logs,
+            { status: taskStatus, timeline: new Date().toISOString() },
+          ],
+        };
+      } else {
+        return log;
+      }
+    });
+
+    setLogs(deletedLogs);
+    setTasks(tasks.filter((task) => task.id !== id));
   };
 
   const isConfirmed = (id) => {
@@ -65,7 +73,7 @@ function App() {
   // 3.Clear Completed Tasks
   const clearCompleted = () => {
     const clearedLogs = tasks
-      .filter((task) => task.completed)
+      .filter((task) => task.status === "completed")
       .map((task) => ({
         id: Date.now(),
         text: task.text,
@@ -74,35 +82,44 @@ function App() {
       }));
 
     setLogs((prevLogs) => [...prevLogs, ...clearedLogs]);
-    setTasks(tasks.filter((task) => !task.completed));
+    setTasks(tasks.filter((task) => task.status !== "completed"));
   };
 
   // 4.Task Filter Logic
   const filteredTasks = tasks.filter((task) => {
-    if (filter === "active") return !task.completed;
-    if (filter === "completed") return task.completed;
-    return true;
+    return filter === "all" || task.status === filter;
   });
 
   // 5.Toggle Task (Complete/Active)
-  // const changeModeTask = (id) => {
-  //   const task = tasks.find((el) => el.id == id);
-  //   const newTaskStatus = task.status==="COMPLETED" ? "ACTIVE"? "COMPLETED"
-  //   const updatedTasks = tasks.map((task) => {
-  //    task.id === id ? { ...task, completed: !task.completed } : task;
-  //   });
-  //   const updatedLogs = logs.map((log) => {
-  //     if (log.id == task.id) {
-  //       return {
-  //         ...log,
-  //         logs: [ ...log,logs, {status:newTaskStatus, timestamp:new Date().toISOString().split("T")[0]}
-  //       ],
-  //       }
-  //     }
-  //   });
-  //   setLogs((prevLogs) => [...prevLogs, ...updatedLogs]);
-  //   setTasks(updatedTasks);
-  // };
+  const toggleTask = (id) => {
+    console.log(id);
+    // Find the task by its ID
+    const toggledTask = tasks.find((task) => task.id === id);
+    const taskStatus = toggledTask.status === "active" ? "completed" : "active";
+
+    // Update the tasks array
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, status: taskStatus } : task
+    );
+
+    const updatedLogs = logs.map((log) => {
+      if (log.id === id) {
+        return {
+          ...log,
+          logs: [
+            ...log.logs,
+            { status: taskStatus, timeline: new Date().toISOString() },
+          ],
+        };
+      } else {
+        return log;
+      }
+    });
+
+    setLogs(updatedLogs);
+    setTasks(updatedTasks);
+  };
+  console.log(logs);
 
   return (
     <>
@@ -152,57 +169,40 @@ function App() {
             {logs.length === 0 ? (
               <p className="p2">No logs yet.</p>
             ) : (
-              <ul>
-                {logs.map((log) => (
-                  <li key={log.id}>
-                    {log.action === "active" && (
-                      <div style={{ display: "flex" }}>
-                        <p>{log.text}</p>
-                        <div>
-                          {log.logs.map((el) => {
-                            console.log(el);
-
-                            return (
-                              <p style={{ color: "red" }}>
-                                {el.status} {el.createdAt}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                    {log.action === "deleted" && (
-                      <>
-                        <span>{log.text}</span> - <span>{log.deleteAt}</span>
-                      </>
-                    )}
-                    {log.action === "completed" && (
-                      <>
-                        <span>{log.text}</span> - <span>{log.action}</span>
-                        {log.logs.map((el) => {
-                          console.log(el);
-
-                          return (
-                            <p style={{ color: "red" }}>
-                              {el.status} {el.createdAt}
-                            </p>
-                          );
-                        })}
-                      </>
-                    )}
-                    {log.action === "active" && (
-                      <>
-                        <span>{log.text}</span> - <span>{log.timestamp}</span>
-                      </>
-                    )}
-                    {log.action === "cleared" && (
-                      <>
-                        <span>{log.text}</span> - <span>{log.clearAt}</span>
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              // <ul>
+              //   {logs.map((log) => (
+              //     <li key={log.id}>
+              //       <p>{log.text}</p>
+              //       <p>{log.createdAt}</p>
+              //       {log.action === "created" && (
+              //         <>
+              //           <p>{log.timestamp}</p>
+              //         </>
+              //       )}
+              //       {log.action === "deleted" && (
+              //         <>
+              //           <p>{log.deleteAt}</p>
+              //         </>
+              //       )}
+              //       {log.action === "marked completed" && (
+              //         <>
+              //           <p>{log.timestamp}</p>
+              //         </>
+              //       )}
+              //       {log.action === "marked active" && (
+              //         <>
+              //           <p>{log.timestamp}</p>
+              //         </>
+              //       )}
+              //       {log.action === "cleared" && (
+              //         <>
+              //           <p>{log.clearAt}</p>
+              //         </>
+              //       )}
+              //     </li>
+              //   ))}
+              // </ul>
+              <div>hello</div>
             )}
           </div>
         ) : (
@@ -219,7 +219,7 @@ function App() {
                     <input
                       type="checkbox"
                       checked={task.completed}
-                      onChange={() => changeModeTask(task.id)}
+                      onChange={() => toggleTask(task.id)}
                     />
                     <span>{task.text}</span>
                     <button onClick={() => isConfirmed(task.id)}>Delete</button>
