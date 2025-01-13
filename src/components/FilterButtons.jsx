@@ -1,7 +1,8 @@
 // components/FilterButtons.jsx
 import React from "react";
 
-function FilterButtons({ filter, setFilter, showLogs, setShowLogs }) {
+const FilterButtons = (props) => {
+  const { filter, setFilter, showLogs, setShowLogs } = props;
   return (
     <div className="buttons">
       {["all", "active", "completed"].map((status) => (
@@ -21,6 +22,6 @@ function FilterButtons({ filter, setFilter, showLogs, setShowLogs }) {
       </button>
     </div>
   );
-}
+};
 
 export default FilterButtons;

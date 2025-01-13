@@ -1,8 +1,9 @@
 import React from "react";
 
-const AddTask=( probs)=> {
- const { newTask, setNewTask, addTask }= probs
-    return (
+const AddTask = (props) => {
+  const { newTask, setNewTask, addTask } = props;
+
+  return (
     <div className="addTask">
       <input
         placeholder="Add new task"
@@ -16,6 +17,6 @@ const AddTask=( probs)=> {
       </button>
     </div>
   );
-}
+};
 
 export default AddTask;
