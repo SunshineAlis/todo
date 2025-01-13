@@ -76,6 +76,7 @@ function App() {
     setTasks(updatedTasks);
     setLogs(updatedLogs);
   };
+
   const clearCompleted = () => {
     const updatedLogs = logs.map((log) => {
       const task = tasks.find((task) => task.id === log.id && task.status === "completed");
@@ -94,7 +95,7 @@ function App() {
     setLogs(updatedLogs);
     setTasks(tasks.filter((task) => task.status !== "completed"));
   };
-
+  
   const filteredTasks = tasks.filter(
     (task) => filter === "all" || task.status === filter
   );
@@ -112,7 +113,6 @@ function App() {
       )}
         <p className="p3"> Powered by <span className="span">Pinecone Academy</span></p>
     </div>
-   
   );
 }
 
